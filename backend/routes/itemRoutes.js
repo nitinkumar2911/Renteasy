@@ -1,8 +1,30 @@
 const express = require('express');
-const { getItems, createItem } = require('../controllers/itemController');
-const { protect } = require('../middleware/authMiddleware');
+
+const {
+  getItems,
+  createItemWithImages,
+} = require('../controllers/itemController');
+
+const {
+  protect,
+  ownerOnly,
+} = require('../middleware/authMiddleware');
+
+const upload = require('../middleware/uploadMiddleware');
+
 const router = express.Router();
 
-router.route('/').get(getItems).post(protect, createItem);
+// GET all items
+router
+  .route('/')
+  .get(getItems)
+
+  // Only owners can create items
+  .post(
+    protect,
+    ownerOnly,
+    upload.array('images', 5),
+    createItemWithImages
+  );
 
 module.exports = router;
